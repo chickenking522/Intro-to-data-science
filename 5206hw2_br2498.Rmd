@@ -1,0 +1,185 @@
+---
+title: "HW 2"
+author: "Bo Rong br2498"
+date: "Oct. 2nd, 2016"
+output: html_document
+---
+
+```{r }
+#part 1.
+#i.
+filename <- "~/Downloads/NYChousing.csv"
+housing<-read.csv(file = filename,header = TRUE)
+```
+
+```{r}
+#ii.
+c(nrow(housing),ncol(housing))
+```
+
+```{r}
+#iii.
+apply(is.na(housing), 2, sum)
+#is.na(housing) returns TRUE of entries is missing,apply (is.na(housing), 2, sum)
+#shows the total number of missing entries each column has.
+```
+
+```{r}
+#iv.
+housingvalue_no_na<-subset(housing, housing$Value != "NA")
+```
+
+```{r}
+#v.
+nrow(housing)-nrow(housingvalue_no_na)
+#52 rows removed with the previous call. Yes,it agrees with the result in (iii).
+```
+
+```{r}
+#vi.
+housing$logValue<-housing$logValue<-as.numeric(log(housing$Value))
+summary(housing$logValue)
+```
+
+```{r}
+#vii.
+housing$logUnits<-housing$UnitCount <-as.numeric(log(housing$UnitCount))
+```
+
+```{r}
+#viii.
+housing$after1950<-as.character(ifelse(housing$YearBuilt == "1950"|housing$YearBuilt > "1950", "TRUE", "FALSE"))
+```
+
+
+
+
+```{r}
+#part 2.
+#i.
+plot(housing$logUnits,housing$logValue,xlab ="logUnits",ylab = "logValue" )
+```
+
+```{r}
+#ii.
+plot(housing$logUnits, housing$logValue, col = factor(housing$after1950), 
+     xlab = "log of Property Units", ylab = "log of Property Value")
+legend("bottomright", legend=levels(factor(housing$after1950)),
+       fill=unique(factor(housing$after1950)))
+
+## The color of observations is based on value of variable "after1950",
+#black means FALSE, and red means TRUE. The plot shows that most of these buildings built after 1950 had higher logUnits and logValue; 
+#while most of buildings with lower value and lower units were built before 1950.
+#Overall, the logUnits and logValue show a positive linear relationship.
+```
+
+```{r}
+#iii.
+cor(housing$logUnits,housing$logValue, use = "complete.obs")
+
+cor(housing$logUnits[housing$Borough=="Manhattan"],housing$logValue[housing$Borough=="Manhattan"], use = "complete.obs")
+
+cor(housing$logUnits[housing$Borough=="Brooklyn"],housing$logValue[housing$Borough=="Brooklyn"], use = "complete.obs")
+
+cor(housing$logUnits[housing$after1950=="TRUE"],housing$logValue[housing$after1950=="TRUE"], use = "complete.obs")
+
+cor(housing$logUnits[housing$after1950=="FALSE"],housing$logValue[housing$after1950=="FALSE"], use = "complete.obs")
+```
+
+
+```{r}
+#iv.
+par(mfrow=c(1,2))
+plot(housing$logUnits[housing$Borough=="Manhattan"],housing$logValue[housing$Borough=="Manhattan"],xlab ="logUnits",ylab = "logValue",main="Manhattan" )
+plot(housing$logUnits[housing$Borough=="Brooklyn"],housing$logValue[housing$Borough=="Brooklyn"],xlab ="logUnits",ylab = "logValue",main="Brooklyn" )
+
+```
+
+
+```{r}
+#v.
+manhat.props <- c()
+    for (props in 1:nrow(housing)) {
+      if (housing$Borough[props] == "Manhattan") {
+        manhat.props <- c(manhat.props, props)
+      }
+}
+    med.value <- c()
+    for (props in manhat.props) {
+      med.value <- c(med.value, housing$Value[props])
+    }
+    med.value <- median(med.value, na.rm = TRUE)
+med.value
+
+
+median(housing$Value[housing$Borough=="Manhattan"],na.rm = TRUE)
+
+#The result are same:1172362.
+```
+
+
+
+```{r}
+#vi.
+boxplot(housing$logValue~housing$Borough,ylab="logValue")
+```
+
+
+
+```{r}
+#vii.
+median(housing$Value[housing$Borough=="Manhattan"],na.rm = TRUE)
+median(housing$Value[housing$Borough=="Bronx"],na.rm = TRUE)
+median(housing$Value[housing$Borough=="Staten Island"],na.rm = TRUE)
+median(housing$Value[housing$Borough=="Brooklyn"],na.rm = TRUE)
+median(housing$Value[housing$Borough=="Queens"],na.rm = TRUE)
+```
+
+
+```{r}
+
+library(plyr)
+ddply(housing$Rental.Coop, housing$Borough, which.max(housing$Value))
+
+
+aggregate(housing$Rental.Coop,by=list(housing$Borough),which.max)
+tapply(housing$Rental.Coop,housing$Borough,which.max(housing$Value))
+
+tapply(housing$Value,housing$Borough,max,na.rm=TRUE,housing$Rental.Coop)
+ddply(housing$Value,housing$Borough,max,na.rm=TRUE,housing$Rental.Coop)
+
+
+high.mid<-function(df){
+  return(max(df$Value))
+}
+daply(housing,.(Borough,Rental.Coop),high.mid)
+ddply(housingvalue_no_na$Value,.(Borough,Rental.Coop),max)
+ddply(housingvalue_no_na, .(Borough, Rental.Coop), summarise,
+  Value = max(Value))
+
+x<-c(1,2,3,4,5)
+z<-c(1,2,3,4,5)
+data1<-data.frame(x,z)
+y<-c(2,4)
+data1[-y,][1:2,]
+```
+
+```{r}
+
+
+
+
+
+ gd.out<-grad.descent(ridge.loss,beta=c(0,0,0),data,step.size = 0.01,max.iter = 10000)
+
+
+
+
+```
+
+
+
+
+
+
+

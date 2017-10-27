@@ -1,0 +1,82 @@
+---
+title: "5206hw8_br2498"
+author: "Bo Rong   br2498"
+date: "November 16, 2016"
+output: pdf_document
+---
+
+```{r}
+#1.
+n <- 100
+p <- 10
+s <- 3
+set.seed(0)
+x <- matrix(rnorm(n*p), n, p)
+b <- c(-0.7, 0.7, 1, rep(0, p-s))
+y <- x %*% b + rt(n, df=2)
+cor(x,y)
+```
+
+```{r}
+#2.
+plot(rt(n, df=3), type="l",xlab="x value",
+  ylab="Density", main="Comparison of t Distributions",col="red")
+lines(rnorm(n),type="l",xlab="x value",
+  ylab="Density", main="Comparison of t Distributions",col="green")
+
+
+```
+
+```{r}
+#3.
+
+huber.loss<-function(beta){
+  r<-resid(lm(y~x))
+  psi <- function(r, c = 1) {
+  return(ifelse(r^2 > c^2, 2*c*abs(r) - c^2, r^2))
+  }
+  
+  return(sum(psi))
+}
+huber.loss(beta = r)
+```
+
+```{r}
+#4.
+install.packages("numDeriv")
+library("numDeriv")
+
+grad.descent <- function(f, x0, max.iter = 200, step.size = 0.001, stopping.deriv = 0.1, ...) {
+  
+  n    <- length(x0)
+  xmat <- matrix(0, nrow = n, ncol = max.iter)
+  xmat[,1] <- x0
+  
+  for (k in 2:max.iter) {
+    # Calculate the gradient
+    grad.cur <- grad(f, xmat[ ,k-1], ...) 
+    
+    # Should we stop?
+    if (all(abs(grad.cur) < stopping.deriv)) {
+      k <- k-1; break
+    }
+    
+    # Move in the opposite direction of the grad
+    xmat[ ,k] <- xmat[ ,k-1] - step.size * grad.cur
+  }
+  
+  xmat <- xmat[ ,1:k] # Trim
+  return(list(x = xmat[,k], xmat = xmat, k = k))
+}
+
+
+grad.descent(huber.loss,rep(0, p))
+```
+
+
+
+
+
+
+
+
