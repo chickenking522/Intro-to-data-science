@@ -1,0 +1,195 @@
+---
+title: "5206hw6_br2498"
+author: "Bo Rong   br2498"
+date: "November 5, 2016"
+output: pdf_document
+---
+
+```{r}
+#1.
+g1<-function(x,xmin=407760,a=2.654){
+  value<-(a-1)/xmin*(x/xmin)^(-a)
+  return(value)
+}
+curve(g1,from=407760,to=1000000,xlab="x",ylab = "f(x)")
+```
+
+```{r}
+#2.
+upper.income<-function(x,xmin=407760,a=2.654){
+value1<-xmin*(1-x)^(1/(-a+1))
+  return(value1)
+}
+upper.income(0.5)
+
+```
+
+```{r}
+#3.
+n<- 1000
+u<-runif(n,0,1)
+xmin=407760
+a=2.654
+F.inverse <- function(u,xmin,a) {return(xmin*(1-u)^(1/(-a+1)))}
+x<- F.inverse(u,xmin,a)
+hist(x,breaks=100, prob = TRUE) # histogram
+y<-seq(407760,1000000)
+lines(y, (a-1)/xmin*(y/xmin)^(-a),col="blue") # density curve f(x)
+
+```
+
+
+
+```{r}
+#4.
+median(x)
+# the median income in the simulated set is quite close to 620020.2
+
+```
+
+
+```{r}
+#5.
+g3<-function(x){
+  value3<-1/9*(4-x^2)
+  return(value3)
+}
+curve(g3,from=-1,to=2,xlab="x",ylab = "f(x)")
+```
+
+```{r}
+#6.
+f <- function(x) {
+return(ifelse((x < -1 | x > 2), 0, 1/9*(4-x^2)))}
+f.max<-4/9
+e <- function(x) {
+return(ifelse((x < -1 | x > 2), Inf, f.max))}
+x <- seq(-1, 2, length = 100)
+plot(x, f(x), type="l", ylab="f(x)")
+lines(c(-1, -1), c(0, e(-1)), lty = 1)
+lines(c(2, 2), c(0, e(2)), lty = 1)
+lines(x, e(x), lty = 1)
+```
+
+
+```{r}
+#7.
+n.samps <- 1000  
+n <- 0  
+samps <- numeric(n.samps) 
+while (n < n.samps) {
+y<-runif(1,-1,2)
+u<-runif(1)
+if(u<f(y)/e(y)){
+  n<-n+1
+  samps[n]<-y}
+}
+
+
+```
+
+
+
+```{r}
+#8.
+x <- seq(-1, 2, length = 100)
+hist(samps, prob = T, ylab = "f(x)", xlab = "x", main = "Histogram of draws from f(x)")
+lines(x, f(x), lty = 2)
+```
+
+
+
+```{r}
+#9.
+x=5
+c=1
+x.vals = NULL
+while(x>0) {
+  r<-runif(1,-2,1)
+  x= x + r
+  if(x>0)
+  x.vals[c] <- x 
+  c  <- c + 1
+}
+x.vals
+```
+
+
+```{r}
+#10.
+plot(x.vals,type="o",ylab = "value",xlab = "number of iterations")
+
+```
+
+```{r}
+#11.
+random.walk<-function(x.start,plot.walk){
+x<-x.start
+c=1
+x.vals<-c(0)
+while(x>0) {
+r<-runif(1,-2,1)
+x= x + r
+ if(x>0)
+x.vals[c] <- x 
+c  <- c + 1
+}
+num.steps<-c-1
+result<-list(x.vals,num.steps)
+names(result)<-c("x.vals","num.steps")
+if(plot.walk==TRUE) 
+{plot(x.vals,type="o",ylab = "random walk values", xlab = "iteration number")
+  return(result)}
+else
+  {return(result)}
+ }
+  random.walk(5,TRUE)
+  random.walk(5,TRUE)
+  random.walk(10,FALSE)
+  random.walk(10,FALSE)
+  
+```
+
+
+```{r}
+#12.
+n<-10000
+samplesize <-rep(NA, n)
+for(i in 1:n){
+  samplesize[i] <-random.walk(5,FALSE)$num.steps
+}
+vector_sample<-samplesize
+mean(vector_sample)
+```
+
+```{r}
+#13.
+random.walk<-function(x.start,plot.walk,seed){
+ set.seed(seed)
+x<-x.start
+c=1
+x.vals<-c(0)
+while(x>0) {
+r<-runif(1,-2,1)
+x= x + r
+ if(x>0)
+x.vals[c] <- x 
+c  <- c + 1
+}
+num.steps<-c-1
+result<-list(x.vals,num.steps)
+names(result)<-c("x.vals","num.steps")
+if(plot.walk==TRUE) 
+{plot(x.vals,type="o",ylab = "random walk values", xlab = "iteration number")
+  return(result)}
+else
+  {return(result)}
+}
+random.walk(5,FALSE,NULL)
+random.walk(5,FALSE,NULL)
+random.walk(5,FALSE,33)
+random.walk(5,FALSE,33)
+```
+
+
+

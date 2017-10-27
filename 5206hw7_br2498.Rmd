@@ -1,0 +1,128 @@
+---
+title: "5206hw7_br2498"
+author: "Bo Rong   br2498"
+date: "November 12, 2016"
+output: pdf_document
+---
+
+```{r}
+#i.
+poisLoglik<-function(lambda,data) {
+  result<-c()
+  for(i in 1:length(data))
+    result[i]<-log((lambda^data[i])*exp(-lambda)/factorial(data[i]))
+  return(sum(result))
+  }
+poisLoglik(lambda=1,data=c(1,0,0,1,1))
+```
+
+```{r}
+#ii.
+filename <- "~/Downloads/moretti.csv"
+moretti<- read.csv(file=filename, header=T)
+count_new_genres<-function(x){
+  number<-length(which(moretti$Begin == x))
+return(number)
+}
+count_new_genres(1803)
+count_new_genres(1850)
+```
+
+```{r}
+#iii.
+new_genres<-sapply(unique(1740:1900),count_new_genres)
+newdata<-data.frame("Year"=1740:1900,"countnum"=new_genres)
+which(newdata$Year==1803)
+which(newdata$Year==1850)
+```
+
+```{r}
+#iv.
+poisLoglik<-function(lambda,data=new_genres) {
+  result<-c()
+  for(i in 1:length(data))
+    result[i]<-log((lambda^data[i])*exp(-lambda)/factorial(data[i]))
+  return(sum(result))
+  }
+h <- Vectorize(poisLoglik); curve(h, 0.1, 1,xlab = "lambda",ylab = "poisLoglik")
+optimize(poisLoglik, interval=c(0.1, 1), maximum=TRUE)
+
+```
+
+```{r warning=FALSE}
+#v.
+poisLoglik_max<-function(lambda,data=new_genres) {
+  result<-c()
+  for(i in 1:length(data))
+    result[i]<--log((lambda^data[i])*exp(-lambda)/factorial(data[i]))
+  return(sum(result))
+  }
+nlm(poisLoglik_max,c(1))$estimate
+
+```
+
+```{r}
+#vi.
+intergenre_intervals<-NULL
+for(i in 1:length(moretti$Begin)-1)
+  intergenre_intervals[i]<-moretti$Begin[i+1]-moretti$Begin[i]
+intergenre_intervals
+mean(intergenre_intervals)
+sd(intergenre_intervals)
+sd(intergenre_intervals)/mean(intergenre_intervals)
+```
+
+```{r}
+#vii.
+#(a)
+check_interval <- function(x){
+ n <- length(x)
+ data<- cbind(c(1:n), x) 
+ trans <- NULL
+ for(i in 1:n){
+   t <- rep(data[i,1], data[i,2])
+   trans <- c(trans,t)
+ }
+ difference<- NULL
+ for (i in 1:(length(trans)-1)){
+   interdiff <- trans[i+1] - trans[i]
+   difference <- c(difference,interdiff)
+ }
+  return(as.integer(difference))
+}
+
+check_interval(new_genres)
+
+
+#(b)
+
+Poisson_process<-function(num_years,mean_genres){
+  x<-rpois(num_years,mean_genres)
+  coef_of_var<-sd(check_interval(x))/mean(check_interval(x))
+  return(list(check_interval(x),coef_of_var))
+}
+Poisson_process(161,0.273)
+
+
+```
+
+```{r}
+#viii.
+simu<-100000
+sample<-rep(NA, simu)
+for(i in 1:simu){
+  sample[i] <- as.numeric(Poisson_process(161, 0.273)[2])
+}
+fraction <- length(sample[sample>sd(intergenre_intervals)/mean(intergenre_intervals)])/simu
+fraction
+```
+
+```{r}
+#ix.
+#The fraction is closed to the p-value, and it is greater than 0.05, thus we need to accept our assumption.
+#So genres don't tend to appear together in bursts.
+
+```
+
+
+

@@ -1,0 +1,88 @@
+---
+title: "5206hw9b_br2498"
+author: "Bo Rong   br2498"
+date: "November 26, 2016"
+output: pdf_document
+---
+
+```{r}
+filename <- "~/Downloads/ckm_nodes-1.csv"
+nodes<- read.csv(file=filename, header=T)
+index_num<-which(nodes$adoption_date%in%c(1:17,"Inf"))
+nodes<-nodes[index_num,]
+filename <- "~/Downloads/ckm_network-1.txt"
+network<- read.table(file=filename, header=F)
+A<-network[index_num,index_num]
+```
+
+```{r}
+#1.
+adopters<-function(month,not.yet=FALSE,data=nodes){
+  if(not.yet==FALSE)
+  return(which(nodes$adoption_date==month))
+  if(not.yet==TRUE)
+  return(which(nodes$adoption_date>month))
+}
+adopters(2)
+adopters(month = 14, not.yet = TRUE)
+```
+
+```{r}
+#2.
+B<-apply(data.frame(A), 1, sum)
+B<-as.vector(B)
+B[41]
+```
+
+```{r}
+#3.
+count_peer_pressure<-function(indnum,month){
+  return(length(which(A[indnum]==1&nodes$adoption_date<=month)))
+}
+count_peer_pressure(37,5)
+```
+
+```{r}
+#4.
+prop_peer_pressure<-function(indnum,month){
+  return(length(which(A[indnum]==1&nodes$adoption_date<=month))/B[indnum])}
+prop_peer_pressure(37,5)
+prop_peer_pressure(102,14)
+```
+
+```{r}
+#5.
+avg<-function(month){
+  prop_peer_pressure1<-function(indnum,month){
+  return(length(which(A[indnum]==1&nodes$adoption_date==month))/B[indnum])}
+  t1<-mean(mapply(prop_peer_pressure1, 1:125, month),na.rm = T)
+  prop_peer_pressure2<-function(indnum,month){
+  return(length(which(A[indnum]==1&nodes$adoption_date>month))/B[indnum])}
+  t2<-mean(mapply(prop_peer_pressure2, 1:125, month),na.rm = T)
+  return(c(t1,t2))
+ }
+
+```
+
+
+```{r}
+#6.
+months<-c(1:17,Inf)
+plotframe<-as.data.frame(lapply(months,avg))
+plot(months,plotframe[1,], type = "l",col="black",ylim = c(0,1.2),ylab = "average proportions") 
+lines(months,plotframe[2,],type="l",col="red")
+legend = c("avg prop in month","avg prop after month")
+legend("topright",legend=legend,lwd=c(2.5,2.5),col = c(1:2,2),cex=1.5)
+
+
+
+
+```
+
+
+
+
+
+
+
+
